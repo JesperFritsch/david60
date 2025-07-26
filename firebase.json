@@ -12,5 +12,21 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "david-60",
+          "configurations": {
+            "web": "1:553487503628:web:537f8d39416a3d3692f929"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }
