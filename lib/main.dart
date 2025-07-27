@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'pages/map_page.dart';
 import 'pages/locations_page.dart';
 import 'pages/notifications_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'viewmodels/map_viewmodel.dart';
 
 void main() {
-  runApp(const AdventureApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => MapViewModel())],
+      child: const AdventureApp(),
+    ),
+  );
 }
 
 class AdventureApp extends StatelessWidget {
@@ -16,10 +25,17 @@ class AdventureApp extends StatelessWidget {
       title: '60 års äventyr',
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const MainNavigation(),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('sv'), // or more if needed
+      ],
     );
   }
 }
@@ -42,23 +58,24 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
-            label: 'Map',
+            label: appLocalizations.map,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Locations',
+            label: appLocalizations.locations,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
-            label: 'Notifications',
+            label: appLocalizations.notifications,
           ),
         ],
       ),
