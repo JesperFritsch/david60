@@ -6,6 +6,7 @@ import 'dart:async';
 class MapViewModel extends ChangeNotifier {
   LatLng? _currentPosition;
   LatLng? _lastMapCenter;
+  LatLng? _centerOnLocation;
   bool _hasInitialized = false;
   StreamSubscription<Position>? _positionStream;
 
@@ -43,7 +44,13 @@ class MapViewModel extends ChangeNotifier {
 
   LatLng? get currentPosition => _currentPosition;
   LatLng? get lastMapCenter => _lastMapCenter;
+  LatLng? get centerOnLocation => _centerOnLocation;
   bool get hasInitialized => _hasInitialized;
+
+  void setCenterOnLocation(LatLng? location) {
+    _centerOnLocation = location;
+    notifyListeners();
+  }
 
   @override
   void dispose() {

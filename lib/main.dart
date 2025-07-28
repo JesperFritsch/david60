@@ -6,11 +6,33 @@ import 'pages/notifications_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'viewmodels/map_viewmodel.dart';
+import 'repositories/adventure_repository.dart';
+import 'controllers/adventure_controller.dart';
+import 'models/adventure.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(LocationAdapter());
+  Hive.registerAdapter(AdventureNodeAdapter());
+  Hive.registerAdapter(AdventureAdapter());
+
+  final adventureRepository = HiveAdventureRepository();
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => MapViewModel())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => MapViewModel()),
+        ChangeNotifierProvider(
+          create:
+              (_) =>
+                  AdventureController(repository: adventureRepository)
+                    ..loadAdventure('mamma_test'),
+        ),
+      ],
       child: const AdventureApp(),
     ),
   );
@@ -43,6 +65,11 @@ class AdventureApp extends StatelessWidget {
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
+  static void setTab(BuildContext context, int index) {
+    final state = context.findAncestorStateOfType<_MainNavigationState>();
+    state?.setTab(index);
+  }
+
   @override
   State<MainNavigation> createState() => _MainNavigationState();
 }
@@ -56,9 +83,19 @@ class _MainNavigationState extends State<MainNavigation> {
     NotificationsPage(),
   ];
 
+  void setTab(int index) {
+    setState(() => _currentIndex = index);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appLocalizations = AppLocalizations.of(context)!;
+    // Get the count of unlocked and not completed locations
+    final adventureController = Provider.of<AdventureController>(context);
+    final unlockedNotCompletedCount =
+        adventureController.visibleNodes
+            .where((node) => !node.completed)
+            .length;
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -70,7 +107,36 @@ class _MainNavigationState extends State<MainNavigation> {
             label: appLocalizations.map,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
+            icon: Stack(
+              children: [
+                Icon(Icons.list),
+                if (unlockedNotCompletedCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        '$unlockedNotCompletedCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             label: appLocalizations.locations,
           ),
           BottomNavigationBarItem(
