@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/map_viewmodel.dart'; // Adjust if needed
 import '../controllers/adventure_controller.dart';
+import '../controllers/notification_controller.dart';
 import '../models/adventure.dart'; // Adjust if needed
 
 class MapPage extends StatefulWidget {

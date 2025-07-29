@@ -9,7 +9,10 @@ import 'viewmodels/map_viewmodel.dart';
 import 'repositories/adventure_repository.dart';
 import 'controllers/adventure_controller.dart';
 import 'models/adventure.dart';
+import 'repositories/notification_repository.dart';
+import 'models/notification.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'controllers/notification_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,8 +22,10 @@ void main() async {
   Hive.registerAdapter(LocationAdapter());
   Hive.registerAdapter(AdventureNodeAdapter());
   Hive.registerAdapter(AdventureAdapter());
+  Hive.registerAdapter(AppNotificationAdapter());
 
   final adventureRepository = HiveAdventureRepository();
+  final notificationRepository = NotificationRepository();
 
   runApp(
     MultiProvider(
@@ -31,6 +36,10 @@ void main() async {
               (_) =>
                   AdventureController(repository: adventureRepository)
                     ..loadAdventure('mamma_test'),
+        ),
+        ChangeNotifierProvider(
+          create:
+              (_) => NotificationController(repository: notificationRepository),
         ),
       ],
       child: const AdventureApp(),

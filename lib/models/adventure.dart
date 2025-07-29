@@ -46,6 +46,15 @@ class AdventureNode {
   @HiveField(6)
   final bool completed;
 
+  @HiveField(7)
+  final String? completionPrompt;
+
+  @HiveField(8)
+  final String? notificationText;
+
+  @HiveField(9)
+  final int? notificationDelaySeconds;
+
   AdventureNode({
     required this.id,
     required this.location,
@@ -54,9 +63,18 @@ class AdventureNode {
     this.nextIds = const [],
     this.unlocked = false,
     this.completed = false,
+    this.completionPrompt,
+    this.notificationText,
+    this.notificationDelaySeconds,
   });
 
-  AdventureNode copyWith({bool? unlocked, bool? completed}) {
+  AdventureNode copyWith({
+    bool? unlocked,
+    bool? completed,
+    String? completionPrompt,
+    String? notificationText,
+    int? notificationDelaySeconds,
+  }) {
     return AdventureNode(
       id: id,
       location: location,
@@ -65,6 +83,10 @@ class AdventureNode {
       nextIds: nextIds,
       unlocked: unlocked ?? this.unlocked,
       completed: completed ?? this.completed,
+      completionPrompt: completionPrompt ?? this.completionPrompt,
+      notificationText: notificationText ?? this.notificationText,
+      notificationDelaySeconds:
+          notificationDelaySeconds ?? this.notificationDelaySeconds,
     );
   }
 }

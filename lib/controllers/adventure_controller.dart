@@ -3,6 +3,9 @@ import '../models/adventure.dart';
 import '../repositories/interface/adventure_interface.dart';
 import '../data/default_adventure.dart';
 import 'package:latlong2/latlong.dart';
+import '../models/notification.dart';
+import '../repositories/notification_repository.dart';
+import 'dart:async';
 
 const proximityThreshold = 20; // meters
 
@@ -15,6 +18,8 @@ class ProximityResult {
 
 class AdventureController extends ChangeNotifier {
   final IAdventureRepository repository;
+  final NotificationRepository notificationRepository =
+      NotificationRepository();
   Adventure? _adventure;
 
   AdventureController({required this.repository});
@@ -58,6 +63,26 @@ class AdventureController extends ChangeNotifier {
       final next = _adventure!.nodes[nextId];
       if (next != null && !next.unlocked) {
         _adventure!.nodes[nextId] = next.copyWith(unlocked: true);
+      }
+    }
+
+    // Notification logic
+    if (node.notificationText != null && node.notificationText!.isNotEmpty) {
+      final notification = AppNotification(
+        id: '${node.id}_${DateTime.now().millisecondsSinceEpoch}',
+        text: node.notificationText!,
+        timestamp: DateTime.now().add(
+          Duration(seconds: node.notificationDelaySeconds ?? 0),
+        ),
+        type: 'task',
+      );
+      if (node.notificationDelaySeconds != null &&
+          node.notificationDelaySeconds! > 0) {
+        Timer(Duration(seconds: node.notificationDelaySeconds!), () {
+          notificationRepository.addNotification(notification);
+        });
+      } else {
+        notificationRepository.addNotification(notification);
       }
     }
 

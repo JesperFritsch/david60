@@ -64,13 +64,16 @@ class AdventureNodeAdapter extends TypeAdapter<AdventureNode> {
       nextIds: (fields[4] as List).cast<String>(),
       unlocked: fields[5] as bool,
       completed: fields[6] as bool,
+      completionPrompt: fields[7] as String?,
+      notificationText: fields[8] as String?,
+      notificationDelaySeconds: fields[9] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, AdventureNode obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -84,7 +87,13 @@ class AdventureNodeAdapter extends TypeAdapter<AdventureNode> {
       ..writeByte(5)
       ..write(obj.unlocked)
       ..writeByte(6)
-      ..write(obj.completed);
+      ..write(obj.completed)
+      ..writeByte(7)
+      ..write(obj.completionPrompt)
+      ..writeByte(8)
+      ..write(obj.notificationText)
+      ..writeByte(9)
+      ..write(obj.notificationDelaySeconds);
   }
 
   @override
