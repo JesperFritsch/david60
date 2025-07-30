@@ -4,7 +4,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/map_viewmodel.dart'; // Adjust if needed
 import '../controllers/adventure_controller.dart';
-import '../controllers/notification_controller.dart';
 import '../models/adventure.dart'; // Adjust if needed
 
 class MapPage extends StatefulWidget {
@@ -37,90 +36,8 @@ class _MapPageState extends State<MapPage> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        if (isCloseEnough && !node.completed) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(title: Text(node.location.name)),
-              if (node.quest != null)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(node.quest!),
-                ),
-              ElevatedButton(
-                onPressed: () {
-                  controller.completeNode(node.id);
-                  Navigator.pop(context);
-                  // After completing, check for new unlocked or adventure end
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    final adventureController =
-                        context.read<AdventureController>();
-                    final newlyUnlocked =
-                        adventureController.visibleNodes
-                            .where((n) => !n.completed && n.unlocked)
-                            .length;
-                    final allCompleted = adventureController.visibleNodes.every(
-                      (n) => n.completed,
-                    );
-                    if (newlyUnlocked > 0) {
-                      showDialog(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: const Text('Nya platser upplåsta!'),
-                              content: const Text(
-                                'Du har låst upp nya platser i äventyret.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                      );
-                    } else if (allCompleted) {
-                      showDialog(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: const Text('Äventyret är slut!'),
-                              content: const Text(
-                                'Du har slutfört alla platser i äventyret.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                      );
-                    }
-                  });
-                },
-                child: const Text('Jag har gjort detta!'),
-              ),
-            ],
-          );
-        } else if (node.completed) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8,
-              children: [
-                Text(node.location.name),
-                if (node.quest != null)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(node.quest!),
-                  ),
-                const Text('Du har redan slutfört detta äventyr!'),
-              ],
-            ),
-          );
-        } else {
+        if (!isCloseEnough) {
+          // User is not close enough to the location
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -131,6 +48,55 @@ class _MapPageState extends State<MapPage> {
                 Text(
                   'Du är ${meters.toStringAsFixed(1)} meter bort. Kom närmare!',
                 ),
+              ],
+            ),
+          );
+        } else if (!node.started) {
+          // At location, not started yet: show start button
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(title: Text(node.location.name)),
+              ElevatedButton(
+                onPressed: () {
+                  controller.startNode(node.id);
+                  Navigator.pop(context);
+                },
+                child: const Text('Starta platsen'),
+              ),
+            ],
+          );
+        } else if (!node.completed) {
+          // At location, started, show task progress and complete button if all tasks are done
+          final completedCount = node.tasks.where((t) => t.completed).length;
+          final totalCount = node.tasks.length;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(title: Text(node.location.name)),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text('Utmaningar: $completedCount / $totalCount'),
+              ),
+              if (controller.canCompleteNode(node.id))
+                ElevatedButton(
+                  onPressed: () {
+                    controller.completeNode(node.id);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Slutför platsen'),
+                ),
+            ],
+          );
+        } else {
+          // Already completed
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(node.location.name),
+                const Text('Du har redan slutfört detta äventyr!'),
               ],
             ),
           );

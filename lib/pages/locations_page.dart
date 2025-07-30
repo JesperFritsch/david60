@@ -29,7 +29,6 @@ class LocationsPage extends StatelessWidget {
         return ListTile(
           leading: const Icon(Icons.location_on),
           title: Text(node.location.name),
-          subtitle: Text(node.completed ? node.quest ?? '' : ''),
           trailing:
               node.completed
                   ? const Icon(Icons.check_circle, color: Colors.green)

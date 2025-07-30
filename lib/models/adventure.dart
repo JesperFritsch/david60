@@ -1,6 +1,8 @@
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'challenge_task.dart';
+
 part 'adventure.g.dart';
 
 @HiveType(typeId: 0)
@@ -31,9 +33,6 @@ class AdventureNode {
   @HiveField(1)
   final Location location;
 
-  @HiveField(2)
-  final String? quest;
-
   @HiveField(3)
   final String? markerIconAsset;
 
@@ -47,46 +46,37 @@ class AdventureNode {
   final bool completed;
 
   @HiveField(7)
-  final String? completionPrompt;
+  final bool started;
 
   @HiveField(8)
-  final String? notificationText;
-
-  @HiveField(9)
-  final int? notificationDelaySeconds;
+  final List<ChallengeTask> tasks;
 
   AdventureNode({
     required this.id,
     required this.location,
-    this.quest,
     this.markerIconAsset,
     this.nextIds = const [],
+    this.started = false,
     this.unlocked = false,
     this.completed = false,
-    this.completionPrompt,
-    this.notificationText,
-    this.notificationDelaySeconds,
+    this.tasks = const [],
   });
 
   AdventureNode copyWith({
     bool? unlocked,
     bool? completed,
-    String? completionPrompt,
-    String? notificationText,
-    int? notificationDelaySeconds,
+    bool? started,
+    List<ChallengeTask>? tasks,
   }) {
     return AdventureNode(
       id: id,
       location: location,
-      quest: quest,
       markerIconAsset: markerIconAsset,
       nextIds: nextIds,
       unlocked: unlocked ?? this.unlocked,
+      started: started ?? this.started,
       completed: completed ?? this.completed,
-      completionPrompt: completionPrompt ?? this.completionPrompt,
-      notificationText: notificationText ?? this.notificationText,
-      notificationDelaySeconds:
-          notificationDelaySeconds ?? this.notificationDelaySeconds,
+      tasks: tasks ?? this.tasks,
     );
   }
 }

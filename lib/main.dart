@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'pages/map_page.dart';
 import 'pages/locations_page.dart';
-import 'pages/notifications_page.dart';
+import 'pages/tasks_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'viewmodels/map_viewmodel.dart';
@@ -11,6 +11,7 @@ import 'controllers/adventure_controller.dart';
 import 'models/adventure.dart';
 import 'repositories/notification_repository.dart';
 import 'models/notification.dart';
+import 'models/challenge_task.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'controllers/notification_controller.dart';
 
@@ -23,9 +24,13 @@ void main() async {
   Hive.registerAdapter(AdventureNodeAdapter());
   Hive.registerAdapter(AdventureAdapter());
   Hive.registerAdapter(AppNotificationAdapter());
+  Hive.registerAdapter(ChallengeTaskAdapter());
 
   final adventureRepository = HiveAdventureRepository();
   final notificationRepository = NotificationRepository();
+  final notificationController = NotificationController(
+    repository: notificationRepository,
+  );
 
   runApp(
     MultiProvider(
@@ -33,13 +38,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MapViewModel()),
         ChangeNotifierProvider(
           create:
-              (_) =>
-                  AdventureController(repository: adventureRepository)
-                    ..loadAdventure('mamma_test'),
-        ),
-        ChangeNotifierProvider(
-          create:
-              (_) => NotificationController(repository: notificationRepository),
+              (_) => AdventureController(
+                repository: adventureRepository,
+                notificationController: notificationController,
+              )..loadAdventure('adventure_with_tasks'),
         ),
       ],
       child: const AdventureApp(),
@@ -86,11 +88,7 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    MapPage(),
-    LocationsPage(),
-    NotificationsPage(),
-  ];
+  final List<Widget> _pages = const [MapPage(), LocationsPage(), TasksPage()];
 
   void setTab(int index) {
     setState(() => _currentIndex = index);
@@ -149,8 +147,52 @@ class _MainNavigationState extends State<MainNavigation> {
             label: appLocalizations.locations,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: appLocalizations.notifications,
+            icon: Stack(
+              children: [
+                Icon(Icons.task_sharp),
+                Builder(
+                  builder: (context) {
+                    final adventureController =
+                        Provider.of<AdventureController>(context);
+                    final unlockedTasksCount =
+                        adventureController.adventure?.nodes.values
+                            .expand((node) => node.tasks)
+                            .where((task) => task.unlocked && !task.completed)
+                            .length ??
+                        0;
+                    if (unlockedTasksCount > 0) {
+                      return Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$unlockedTasksCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
+              ],
+            ),
+            label: appLocalizations.tasks,
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -18,18 +19,19 @@ class MapViewModel extends ChangeNotifier {
       if (permission == LocationPermission.denied) return;
     }
     if (permission == LocationPermission.deniedForever) return;
-    final position = await Geolocator.getCurrentPosition();
+    // final position = await Geolocator.getCurrentPosition();
+    final position = LatLng(57.689942, 11.990628);
     _currentPosition = LatLng(position.latitude, position.longitude);
     _lastMapCenter ??= _currentPosition;
     _hasInitialized = true;
     notifyListeners();
 
-    _positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    ).listen((position) {
-      _currentPosition = LatLng(position.latitude, position.longitude);
-      notifyListeners();
-    });
+    // _positionStream = Geolocator.getPositionStream(
+    //   locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    // ).listen((position) {
+    //   _currentPosition = LatLng(position.latitude, position.longitude);
+    //   notifyListeners();
+    // });
   }
 
   void centerMapOnUser(Function(LatLng) onCenter) {
