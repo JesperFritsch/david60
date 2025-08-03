@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:provider/provider.dart';
 import '../controllers/adventure_controller.dart';
 import '../models/challenge_task.dart';
@@ -105,11 +104,11 @@ class _TaskInfoDialog extends StatefulWidget {
 }
 
 class _TaskInfoDialogState extends State<_TaskInfoDialog> {
+  String _userAnswer = '';
   @override
   void initState() {
     super.initState();
-    if (widget.task.timeoutSeconds != null) {
-      // Only start the countdown if the task has not been started yet
+    if (widget.adventureController.isTaskTimed(widget.task)) {
       widget.adventureController.startTaskCountdown(
         widget.nodeId,
         widget.task.id,
@@ -124,83 +123,124 @@ class _TaskInfoDialogState extends State<_TaskInfoDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isTimed = widget.task.timeoutSeconds != null;
-    final isCompleted = widget.task.completed;
-    int remainingSeconds = 0;
-    if (isTimed) {
-      final adventureController = context.watch<AdventureController>();
-      final key = '${widget.nodeId}|${widget.task.id}';
-      remainingSeconds = adventureController.taskCountdowns[key] ?? 0;
-    }
-    return AlertDialog(
-      backgroundColor: isTimed ? Colors.red[100] : null,
-      title: Text(widget.task.title),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(widget.task.description),
-          if (isTimed)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: Text(
-                remainingSeconds > 0
-                    ? 'Tid kvar: $remainingSeconds s'
-                    : 'Tiden är slut!',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
+    return Consumer<AdventureController>(
+      builder: (context, adventureController, _) {
+        // Always get the latest task from the controller
+        final node = adventureController.adventure?.nodes[widget.nodeId];
+        final task = node?.tasks.firstWhere(
+          (t) => t.id == widget.task.id,
+          orElse: () => widget.task,
+        );
+        if (task == null) {
+          return const AlertDialog(
+            content: Text('Kunde inte hitta uppgiften.'),
+          );
+        }
+        final isTimed = adventureController.isTaskTimed(task);
+        final isCompleted = adventureController.isTaskCompleted(task);
+        final hasQuestion = adventureController.hasTaskQuestion(task);
+        final completeWithinTime = adventureController
+            .isTaskCompletedWithinTime(task);
+        Color? bgColor;
+        if (isTimed && isCompleted) {
+          bgColor = completeWithinTime ? Colors.green[100] : Colors.red[100];
+        } else if (isTimed) {
+          bgColor = Colors.red[100];
+        }
+        return AlertDialog(
+          backgroundColor: bgColor,
+          title: Text(task.title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(task.description),
+              if (isTimed)
+                Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: Builder(
+                    builder: (context) {
+                      final key = '${widget.nodeId}|${task.id}';
+                      final remainingSeconds =
+                          adventureController.taskCountdowns[key] ?? 0;
+                      String countdownText;
+                      if (isCompleted) {
+                        countdownText =
+                            completeWithinTime
+                                ? 'Rätt svar!'
+                                : 'Tiden gick ut!';
+                      } else {
+                        countdownText =
+                            remainingSeconds > 0
+                                ? 'Tid kvar: $remainingSeconds s'
+                                : 'Tiden är ute!';
+                      }
+                      return Text(
+                        countdownText,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ),
-          if (!isTimed && !isCompleted)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: ElevatedButton(
-                onPressed: () {
-                  widget.adventureController.completeTask(
-                    widget.nodeId,
-                    widget.task.id,
-                  );
-                  Navigator.pop(context);
-                },
-                child: const Text('Klar!'),
-              ),
-            ),
-          if (isTimed && remainingSeconds <= 0 && !isCompleted)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: ElevatedButton(
-                onPressed: () {
-                  widget.adventureController.completeTask(
-                    widget.nodeId,
-                    widget.task.id,
-                  );
-                  Navigator.pop(context);
-                },
-                child: const Text('Klar!'),
-              ),
-            ),
-          if (isCompleted)
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: Text(
-                'Uppgiften är klar!',
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+              if (!isCompleted && hasQuestion)
+                Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() => _userAnswer = value);
+                      if (_userAnswer.isNotEmpty &&
+                          (task.correctAnswers?.any(
+                                (ans) =>
+                                    ans.toLowerCase().trim() ==
+                                    _userAnswer.toLowerCase().trim(),
+                              ) ??
+                              false)) {
+                        adventureController.completeTask(
+                          widget.nodeId,
+                          task.id,
+                        );
+                        setState(() {});
+                      }
+                    },
+                    decoration: const InputDecoration(labelText: 'Ditt svar'),
+                  ),
                 ),
-              ),
+              if (!isCompleted && !hasQuestion)
+                Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      adventureController.completeTask(widget.nodeId, task.id);
+                      setState(() {});
+                    },
+                    child: const Text('Klar!'),
+                  ),
+                ),
+              if (isCompleted)
+                Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: Text(
+                    'Uppgiften är klar!',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Stäng'),
             ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Stäng'),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

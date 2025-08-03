@@ -77,6 +77,16 @@ class AdventureController extends ChangeNotifier {
     }
   }
 
+  void stopTaskCountdown(String nodeId, String taskId) {
+    final key = '$nodeId|$taskId';
+    if (_timers.containsKey(key)) {
+      _timers[key]!.cancel();
+      _timers.remove(key);
+      _taskCountdowns.remove(key);
+      notifyListeners();
+    }
+  }
+
   void stopAllCountdowns() {
     for (final timer in _timers.values) {
       timer.cancel();
@@ -168,11 +178,16 @@ class AdventureController extends ChangeNotifier {
     if (_adventure == null) return;
     final node = _adventure!.nodes[nodeId];
     if (node == null) return;
+    final now = DateTime.now();
     final updatedTasks = [
       for (final task in node.tasks)
-        task.id == taskId ? task.copyWith(completed: true) : task,
+        task.id == taskId
+            ? task.copyWith(completed: true, completedAt: now)
+            : task,
     ];
     _adventure!.nodes[nodeId] = node.copyWith(tasks: updatedTasks);
+    // Stop countdown for this task
+    stopTaskCountdown(nodeId, taskId);
     notifyListeners();
     saveAdventure();
   }
@@ -248,5 +263,32 @@ class AdventureController extends ChangeNotifier {
     );
     notifyListeners();
     saveAdventure();
+  }
+
+  // Utility methods for ChallengeTask status
+  bool isTaskTimed(ChallengeTask task) => task.timeoutSeconds != null;
+  bool isTaskCompleted(ChallengeTask task) => task.completed;
+  bool hasTaskQuestion(ChallengeTask task) =>
+      task.question != null &&
+      task.correctAnswers != null &&
+      task.correctAnswers!.isNotEmpty;
+  bool isTaskCompletedWithinTime(ChallengeTask task) {
+    if (!isTaskTimed(task) ||
+        task.completedAt == null ||
+        task.startedAt == null ||
+        task.timeoutSeconds == null)
+      return false;
+    return task.completedAt!.difference(task.startedAt!).inSeconds <=
+        task.timeoutSeconds!;
+  }
+
+  bool isTaskCompletedAfterTimeout(ChallengeTask task) {
+    if (!isTaskTimed(task) ||
+        task.completedAt == null ||
+        task.startedAt == null ||
+        task.timeoutSeconds == null)
+      return false;
+    return task.completedAt!.difference(task.startedAt!).inSeconds >
+        task.timeoutSeconds!;
   }
 }

@@ -18,6 +18,12 @@ class ChallengeTask {
   final bool completed;
   @HiveField(6)
   final DateTime? startedAt;
+  @HiveField(7)
+  final String? question;
+  @HiveField(8)
+  final List<String>? correctAnswers;
+  @HiveField(9)
+  final DateTime? completedAt;
 
   ChallengeTask({
     required this.id,
@@ -27,12 +33,18 @@ class ChallengeTask {
     this.unlocked = false,
     this.completed = false,
     this.startedAt,
+    this.question,
+    this.correctAnswers,
+    this.completedAt,
   });
 
   ChallengeTask copyWith({
     bool? unlocked,
     bool? completed,
     DateTime? startedAt,
+    DateTime? completedAt,
+    String? question,
+    List<String>? correctAnswers,
   }) {
     return ChallengeTask(
       id: id,
@@ -42,6 +54,9 @@ class ChallengeTask {
       unlocked: unlocked ?? this.unlocked,
       completed: completed ?? this.completed,
       startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      question: question ?? this.question,
+      correctAnswers: correctAnswers ?? this.correctAnswers,
     );
   }
 }

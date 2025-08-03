@@ -24,13 +24,16 @@ class ChallengeTaskAdapter extends TypeAdapter<ChallengeTask> {
       unlocked: fields[4] as bool,
       completed: fields[5] as bool,
       startedAt: fields[6] as DateTime?,
+      question: fields[7] as String?,
+      correctAnswers: (fields[8] as List?)?.cast<String>(),
+      completedAt: fields[9] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChallengeTask obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +47,13 @@ class ChallengeTaskAdapter extends TypeAdapter<ChallengeTask> {
       ..writeByte(5)
       ..write(obj.completed)
       ..writeByte(6)
-      ..write(obj.startedAt);
+      ..write(obj.startedAt)
+      ..writeByte(7)
+      ..write(obj.question)
+      ..writeByte(8)
+      ..write(obj.correctAnswers)
+      ..writeByte(9)
+      ..write(obj.completedAt);
   }
 
   @override
