@@ -245,8 +245,8 @@ class AdventureController extends ChangeNotifier {
       nodePosition,
     );
 
-    // final isCloseEnough = distanceMeters <= proximityThreshold;
-    final isCloseEnough = true;
+    final isCloseEnough = distanceMeters <= proximityThreshold;
+    // final isCloseEnough = true;
     return ProximityResult(isCloseEnough, distanceMeters);
   }
 
