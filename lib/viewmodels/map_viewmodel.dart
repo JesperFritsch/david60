@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import '../controllers/adventure_controller.dart';
 import 'dart:async';
 
 class MapViewModel extends ChangeNotifier {
@@ -10,6 +11,9 @@ class MapViewModel extends ChangeNotifier {
   LatLng? _centerOnLocation;
   bool _hasInitialized = false;
   StreamSubscription<Position>? _positionStream;
+  final AdventureController adventureController;
+
+  MapViewModel({required this.adventureController});
 
   Future<void> initializePosition() async {
     if (_hasInitialized) return;
@@ -19,19 +23,21 @@ class MapViewModel extends ChangeNotifier {
       if (permission == LocationPermission.denied) return;
     }
     if (permission == LocationPermission.deniedForever) return;
-    // final position = await Geolocator.getCurrentPosition();
-    final position = LatLng(57.689942, 11.990628);
+    final position = await Geolocator.getCurrentPosition();
+    // final position = LatLng(57.689942, 11.990628);
     _currentPosition = LatLng(position.latitude, position.longitude);
     _lastMapCenter ??= _currentPosition;
     _hasInitialized = true;
     notifyListeners();
 
-    // _positionStream = Geolocator.getPositionStream(
-    //   locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    // ).listen((position) {
-    //   _currentPosition = LatLng(position.latitude, position.longitude);
-    //   notifyListeners();
-    // });
+    _positionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    ).listen((position) {
+      _currentPosition = LatLng(position.latitude, position.longitude);
+      adventureController.completeProximityNodes(_currentPosition!);
+      adventureController.startProximityNodes(_currentPosition!);
+      notifyListeners();
+    });
   }
 
   void centerMapOnUser(Function(LatLng) onCenter) {

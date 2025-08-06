@@ -32,17 +32,18 @@ void main() async {
     repository: notificationRepository,
   );
 
+  final adventureController = AdventureController(
+    repository: adventureRepository,
+    notificationController: notificationController,
+  )..loadAdventure('david60');
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MapViewModel()),
         ChangeNotifierProvider(
-          create:
-              (_) => AdventureController(
-                repository: adventureRepository,
-                notificationController: notificationController,
-              )..loadAdventure('adventure_with_tasks'),
+          create: (_) => MapViewModel(adventureController: adventureController),
         ),
+        ChangeNotifierProvider(create: (_) => adventureController),
       ],
       child: const AdventureApp(),
     ),

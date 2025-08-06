@@ -195,7 +195,7 @@ class AdventureController extends ChangeNotifier {
   bool canCompleteNode(String nodeId) {
     final node = _adventure?.nodes[nodeId];
     if (node == null) return false;
-    return node.tasks.isNotEmpty && node.tasks.every((t) => t.completed);
+    return node.tasks.isEmpty || node.tasks.every((t) => t.completed);
   }
 
   void completeNode(String nodeId) {
@@ -223,7 +223,7 @@ class AdventureController extends ChangeNotifier {
       );
     } else {
       notificationController.addNotification(
-        text: 'Du har slutfört detta steg i äventyret!',
+        text: 'Grattis farsan nu har du klarat alla steg i detta äventyr!',
         type: 'Success',
       );
     }
@@ -245,7 +245,8 @@ class AdventureController extends ChangeNotifier {
       nodePosition,
     );
 
-    final isCloseEnough = distanceMeters <= proximityThreshold;
+    // final isCloseEnough = distanceMeters <= proximityThreshold;
+    final isCloseEnough = true;
     return ProximityResult(isCloseEnough, distanceMeters);
   }
 
@@ -290,5 +291,30 @@ class AdventureController extends ChangeNotifier {
       return false;
     return task.completedAt!.difference(task.startedAt!).inSeconds >
         task.timeoutSeconds!;
+  }
+
+  // function to complete all nodes that can complete in the proximity of the user
+  void completeProximityNodes(LatLng userPosition) {
+    if (_adventure == null) return;
+    for (final node in _adventure!.nodes.values) {
+      if (node.unlocked && !node.completed) {
+        final proximityResult = checkProximityToNode(node.id, userPosition);
+        if (proximityResult.isCloseEnough && canCompleteNode(node.id)) {
+          completeNode(node.id);
+        }
+      }
+    }
+  }
+
+  void startProximityNodes(LatLng userPosition) {
+    if (_adventure == null) return;
+    for (final node in _adventure!.nodes.values) {
+      if (node.unlocked && !node.started && !node.completed) {
+        final proximityResult = checkProximityToNode(node.id, userPosition);
+        if (proximityResult.isCloseEnough) {
+          startNode(node.id);
+        }
+      }
+    }
   }
 }

@@ -1,129 +1,248 @@
 import '../models/adventure.dart';
 import '../models/challenge_task.dart';
 
+/*
+
+Hotell flora:
+
+paddan bryggan:
+Ta dig på livflotten och förklara för dina följare varför det är viktigt att behålla lugnet och undvika panik under kris
+
+kopparmärra:
+Riktmärken är viktigt för att kunna navigera runt om i vildmarken, du har precis kommit till ett viktigt riktmärke i staden. Förklara för dina följare vad som är viktigt att tänka på för att kunna navigera i det vilda. (Siri: Kompass + karta)
+
+domkyrkan:
+Förklara för alla dina följare vad som är bra med jordförbindelse och demonstrera med inlevelse.
+
+naturkompaniet stora nygatan:
+gå in på naturkompaniet och säg “Hej jag heter David, jag fyller 60 år idag” till personalen
+
+trädgårdsföreningen:
+Gör en unboxing och reviewa paketet för dina följare
+du har 60 sekunder på dig att göra 6 kullerbyttor
+
+brygghuset:
+Hitta en plats för vätskepaus 
+Förklara för dina följare varför det är viktigt med vätskepauser
+
+götaplatsen:
+Vackra vyer är en anledning att ta sig ut i naturen, förklara varför det är viktigt för människan att ha fina vyer
+
+Jesper:
+
+
+*/
+
 Adventure createDefaultAdventureWithTasks() {
   return Adventure(
-    id: 'adventure_with_tasks',
-    title: 'Äventyr med utmaningar',
+    id: 'david60',
+    title: '60 års äventyr',
     nodes: {
       'start': AdventureNode(
         id: 'start',
-        location: Location(
-          name: 'Startplatsen',
-          latitude: 57.689942,
-          longitude: 11.990628,
-        ),
         unlocked: true,
+        location: Location(
+          name: "Startplatsen",
+          latitude: 57.77940631797856,
+          longitude: 12.23518199463353,
+        ),
         tasks: [
           ChallengeTask(
-            id: 'task1',
-            title: 'Hälsa på någon!',
-            description: 'Säg hej till någon du möter vid startplatsen.',
+            id: 'task1_1',
+            title: 'Första uppgiften',
+            description: 'Beskrivning av första uppgiften',
+          ),
+        ],
+        nextIds: ["node1"],
+      ),
+      'node1': AdventureNode(
+        id: 'node1',
+        location: Location(
+          name: "åkareplatsen",
+          latitude: 57.707854,
+          longitude: 11.976026,
+        ),
+        tasks: [
+          ChallengeTask(
+            id: 'task2_1',
+            title: 'Andra uppgiften',
+            description: 'Beskrivning av andra uppgiften',
+          ),
+        ],
+        nextIds: ["node2"],
+      ),
+      'node2': AdventureNode(
+        id: 'node2',
+        location: Location(
+          name: "Hotell flora",
+          latitude: 57.702796009553666,
+          longitude: 11.965639315381878,
+        ),
+        tasks: [],
+        nextIds: ["node3"],
+      ),
+      'node3': AdventureNode(
+        id: 'node3',
+        location: Location(
+          name: "paddan bryggan",
+          latitude: 57.703268,
+          longitude: 11.969409,
+        ),
+        tasks: [
+          ChallengeTask(
+            id: 'task4_1',
+            title: 'Livflotten',
+            description: 'Ta dig på livflotten.',
           ),
           ChallengeTask(
-            id: 'task2',
-            title: 'Kullebyttan',
-            description: 'Gör 3 kullerbyttor på plats.',
+            id: 'task4_2',
+            title: 'Kris och lugn',
+            description:
+                'Förklara för dina följare varför det är viktigt att behålla lugnet och undvika panik under kris.',
+          ),
+        ],
+        nextIds: ["node4"],
+      ),
+      'node4': AdventureNode(
+        id: 'node4',
+        location: Location(
+          name: "Kopparmärra",
+          latitude: 57.704520,
+          longitude: 11.969618,
+        ),
+        tasks: [
+          ChallengeTask(
+            id: 'task5_1',
+            title: 'Hitta riktmärke',
+            description: 'Hitta ett viktigt riktmärke i staden.',
+          ),
+          ChallengeTask(
+            id: 'task5_2',
+            title: 'Navigera',
+            description:
+                'Visa hur du använder kompass och karta för att navigera i det vilda.',
+          ),
+        ],
+        nextIds: ["node5"],
+      ),
+      'node5': AdventureNode(
+        id: 'node5',
+        location: Location(
+          name: "Domkyrkan",
+          latitude: 57.704508,
+          longitude: 11.964536,
+        ),
+        tasks: [
+          ChallengeTask(
+            id: 'task6_1',
+            title: 'Berätta om jordförbindelse',
+            description:
+                'Berätta för dina följare vad som är bra med jordförbindelse.',
+          ),
+          ChallengeTask(
+            id: 'task6_2',
+            title: 'Demonstrera jordförbindelse',
+            description: 'Visa och demonstrera jordförbindelse med inlevelse.',
+          ),
+        ],
+        nextIds: ["node6"],
+      ),
+      'node6': AdventureNode(
+        id: 'node6',
+        location: Location(
+          name: "Naturkompaniet Stora Nygatan",
+          latitude: 57.704092,
+          longitude: 11.970884,
+        ),
+        tasks: [
+          ChallengeTask(
+            id: 'task7_1',
+            title: 'Social utmaning',
+            description:
+                'Gå in på Naturkompaniet och säg “Hej jag heter David, jag fyller 60 år idag” till personalen.',
+          ),
+        ],
+        nextIds: ["node7"],
+      ),
+      'node7': AdventureNode(
+        id: 'node7',
+        location: Location(
+          name: "Trädgårdsföreningen",
+          latitude: 57.705671,
+          longitude: 11.974643,
+        ),
+        tasks: [
+          ChallengeTask(
+            id: 'task8_1',
+            title: 'Unboxing',
+            description:
+                'Gör en unboxing och reviewa paketet för dina följare.',
+          ),
+          ChallengeTask(
+            id: 'task8_2',
+            title: 'Kullerbyttor',
+            description: 'Du har 60 sekunder på dig att göra 6 kullerbyttor.',
             timeoutSeconds: 60,
           ),
-          ChallengeTask(
-            id: 'task3',
-            title: 'Kullebyttan',
-            description: 'Gör 3 kullerbyttor på plats.',
-            question: "Hur många ben har en katt?",
-            correctAnswers: ['4', 'fyra'],
-            timeoutSeconds: 10,
-          ),
         ],
-        nextIds: ['park'],
+        nextIds: ["node8"],
       ),
-      'park': AdventureNode(
-        id: 'park',
+      'node8': AdventureNode(
+        id: 'node8',
         location: Location(
-          name: 'Lilla Parken',
-          latitude: 57.6905,
-          longitude: 11.9912,
+          name: "Brygghuset",
+          latitude: 57.703935,
+          longitude: 11.968880,
         ),
         tasks: [
           ChallengeTask(
-            id: 'task3',
-            title: 'Plocka upp skräp',
-            description: 'Hitta och plocka upp minst 3 skräp i parken.',
+            id: 'task9_1',
+            title: 'Vätskepaus',
+            description: 'Hitta en plats för vätskepaus.',
           ),
           ChallengeTask(
-            id: 'task4',
-            title: 'Hoppa jämfota',
-            description: 'Hoppa jämfota 10 gånger.',
-            timeoutSeconds: 30,
+            id: 'task9_2',
+            title: 'Vätskepauser',
+            description:
+                'Förklara för dina följare varför det är viktigt med vätskepauser.',
           ),
         ],
-        nextIds: ['brygga'],
+        nextIds: ["node9"],
       ),
-      'brygga': AdventureNode(
-        id: 'brygga',
+      'node9': AdventureNode(
+        id: 'node9',
         location: Location(
-          name: 'Bryggan',
-          latitude: 57.6901,
-          longitude: 11.9885,
+          name: "Götaplatsen",
+          latitude: 57.69721080004185,
+          longitude: 11.979585057910219,
         ),
         tasks: [
           ChallengeTask(
-            id: 'task5',
-            title: 'Titta på vattnet',
-            description: 'Stå tyst och titta på vattnet i 30 sekunder.',
-            timeoutSeconds: 30,
-          ),
-          ChallengeTask(
-            id: 'task6',
-            title: 'Räkna båtar',
-            description: 'Hur många båtar ser du? Skriv ner antalet.',
+            id: 'task10_2',
+            title: 'Varför vyer är viktiga',
+            description:
+                'Förklara varför det är viktigt för människan att ha fina vyer.',
           ),
         ],
-        nextIds: ['lekplats'],
+        nextIds: ["node10"],
       ),
-      'lekplats': AdventureNode(
-        id: 'lekplats',
+      // 57.689989, 11.990457
+      'node10': AdventureNode(
+        id: 'node10',
         location: Location(
-          name: 'Lekplatsen',
-          latitude: 57.6893,
-          longitude: 11.9920,
+          name: "Jespers",
+          latitude: 57.689989,
+          longitude: 11.990457,
         ),
         tasks: [
           ChallengeTask(
-            id: 'task7',
-            title: 'Åk rutschkana',
-            description: 'Åk ner för rutschkanan.',
-          ),
-          ChallengeTask(
-            id: 'task8',
-            title: 'Bygg ett sandslott',
-            description: 'Bygg ett litet sandslott.',
+            id: 'task11_1',
+            title: 'Elfte uppgiften',
+            description: 'Beskrivning av elfte uppgiften',
           ),
         ],
-        nextIds: ['skogsdunge'],
       ),
-      'skogsdunge': AdventureNode(
-        id: 'skogsdunge',
-        location: Location(
-          name: 'Skogsdungen',
-          latitude: 57.6890,
-          longitude: 11.9875,
-        ),
-        tasks: [
-          ChallengeTask(
-            id: 'task9',
-            title: 'Hitta en kotte',
-            description: 'Hitta och ta med dig en kotte.',
-          ),
-          ChallengeTask(
-            id: 'task10',
-            title: 'Lyssna på fåglar',
-            description: 'Stå still och lyssna på fåglar i 1 minut.',
-            timeoutSeconds: 60,
-          ),
-        ],
-        nextIds: [],
-      ),
+      // Add more nodes and tasks as needed
     },
   );
 }
