@@ -217,9 +217,9 @@ Adventure createDefaultAdventureWithTasks() {
       'node8': AdventureNode(
         id: 'node8',
         location: Location(
-          name: "Brygghuset",
-          latitude: 57.703935,
-          longitude: 11.968880,
+          name: "Vätskekällan",
+          latitude: 57.701446674532335,
+          longitude: 11.973189359046719,
         ),
         tasks: [
           ChallengeTask(
