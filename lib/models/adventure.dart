@@ -105,4 +105,30 @@ class Adventure {
   );
 
   bool get isCompleted => nodes.values.every((n) => n.completed);
+
+  void reset() {
+    final nodeKeys = nodes.keys.toList();
+    final resetNodes = {
+      for (int i = 0; i < nodeKeys.length; i++)
+        nodeKeys[i]: nodes[nodeKeys[i]]!.copyWith(
+          unlocked: i == 0, // only first node unlocked
+          completed: false,
+          started: false,
+          tasks:
+              nodes[nodeKeys[i]]!.tasks
+                  .map(
+                    (task) => task.copyWith(
+                      completed: false,
+                      unlocked: false,
+                      startedAt: null,
+                      completedAt: null,
+                    ),
+                  )
+                  .toList(),
+        ),
+    };
+    nodes
+      ..clear()
+      ..addAll(resetNodes);
+  }
 }

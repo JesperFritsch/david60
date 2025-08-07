@@ -14,6 +14,7 @@ import 'models/notification.dart';
 import 'models/challenge_task.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'controllers/notification_controller.dart';
+import 'pwa_install_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,33 +89,98 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
-
   final List<Widget> _pages = const [MapPage(), LocationsPage(), TasksPage()];
+
+  bool _installAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Only run on web
+    if (identical(0, 0.0)) {
+      PwaInstallHelper.setupListener(() {
+        setState(() {
+          _installAvailable = true;
+        });
+      });
+    }
+  }
 
   void setTab(int index) {
     setState(() => _currentIndex = index);
   }
 
+  void _showInstallDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Installera appen'),
+            content: const Text('Vill du installera denna app på din enhet?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Avbryt'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await PwaInstallHelper.showInstallPrompt();
+                  setState(() {
+                    _installAvailable = false;
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text('Installera'),
+              ),
+            ],
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appLocalizations = AppLocalizations.of(context)!;
-    // Get the count of unlocked and not completed locations
     final adventureController = Provider.of<AdventureController>(context);
     final unlockedNotCompletedCount =
         adventureController.visibleNodes
             .where((node) => !node.completed)
             .length;
     return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: [
-          BottomNavigationBarItem(
+      body: Stack(
+        children: [
+          _pages[_currentIndex],
+          if (_installAvailable)
+            Positioned(
+              top: 30,
+              right: 20,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.download),
+                label: const Text('Installera appen'),
+                onPressed: () => _showInstallDialog(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  elevation: 6,
+                ),
+              ),
+            ),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        height: 85,
+        labelPadding: EdgeInsets.only(bottom: 15, top: 5),
+        destinations: [
+          NavigationDestination(
             icon: Icon(Icons.map),
             label: appLocalizations.map,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Stack(
               children: [
                 Icon(Icons.list),
@@ -147,7 +213,7 @@ class _MainNavigationState extends State<MainNavigation> {
             ),
             label: appLocalizations.locations,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Stack(
               children: [
                 Icon(Icons.task_sharp),

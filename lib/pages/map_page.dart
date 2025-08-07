@@ -144,13 +144,14 @@ class _MapPageState extends State<MapPage> {
               userAgentPackageName: 'com.example.app',
             ),
             MarkerLayer(
+              rotate: true,
               markers: [
                 if (viewModel.currentPosition != null)
                   Marker(
                     point: viewModel.currentPosition!,
                     width: 40,
                     height: 40,
-                    rotate: false,
+                    rotate: true,
                     child: const Icon(
                       Icons.person_pin_circle,
                       color: Colors.blue,

@@ -252,16 +252,9 @@ class AdventureController extends ChangeNotifier {
 
   void resetAdventure() {
     // Optional: Reset all nodes to initial state
-    if (_adventure == null) return;
-    final resetNodes = {
-      for (final entry in _adventure!.nodes.entries)
-        entry.key: entry.value.copyWith(unlocked: false, completed: false),
-    };
-    _adventure = Adventure(
-      id: _adventure!.id,
-      title: _adventure!.title,
-      nodes: resetNodes,
-    );
+    _adventure?.reset();
+    // Reset task countdowns
+    stopAllCountdowns();
     notifyListeners();
     saveAdventure();
   }
